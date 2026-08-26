@@ -68,7 +68,7 @@ public class CompanySearchService {
         System.out.println("extracted company ids, total count is : " + companyIds.size());
 
         ArrayList<CompanyInfo> companies = new ArrayList<>();
-        int minLength = Math.min(companyIds.size(), 15);
+        int minLength = Math.min(companyIds.size(), 100);// you can change this number (100) to something smaller to have results faster (by default i parse maximum of 100 companies)
         for (int i = 0; i < minLength; i++) {
             companies.add(parseCompanyPage(companyIds.get(i), query));
         }
