@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Company Search</title>
+<style>
+  body { font-family: sans-serif; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+  form { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; }
+  input { flex: 1; padding: 0.5rem; font-size: 1rem; }
+  button { padding: 0.5rem 1rem; font-size: 1rem; cursor: pointer; }
+  .company { border: 1px solid #ccc; border-radius: 6px; padding: 1rem; margin-bottom: 1rem; }
+  .company h3 { margin: 0 0 0.25rem 0; }
+  .meta { color: #555; font-size: 0.9rem; margin-bottom: 0.5rem; }
+  .section-title { font-weight: bold; margin-top: 0.5rem; }
+  ul { margin: 0.25rem 0; padding-left: 1.25rem; }
+  #status { color: #555; margin-bottom: 1rem; }
+</style>
+</head>
+<body>
+
+<h1>Company Search</h1>
+
+<form id="search-form">
+  <input id="query" type="text" placeholder="e.g. something" required>
+  <button type="submit">Search</button>
+</form>
+
+<div id="status"></div>
+<div id="results"></div>
+
+<script>
+document.getElementById('search-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const query = document.getElementById('query').value.trim();
+  const statusEl = document.getElementById('status');
+  const resultsEl = document.getElementById('results');
+  if (!query) return;
+
+  statusEl.textContent = 'Searching…';
+  resultsEl.innerHTML = '';
+
+  try {
+    const response = await fetch('http://localhost:8081/api/companies/search?q=' + encodeURIComponent(query));
+    if (!response.ok) {
+      throw new Error('Request failed with status ' + response.status);
+    }
+    const data = await response.json();
+    const companies = data.companies || [];
+    statusEl.textContent = companies.length + ' companies found';
+    resultsEl.innerHTML = companies.map(renderCompany).join('');
+  } catch (err) {
+    statusEl.textContent = 'Error: ' + err.message;
+  }
+});
+
+function renderCompany(c) {
+  const officers = (c.officers || []).map(o =>
+    '<li>' + escapeHtml(o.name) + ' — ' + escapeHtml(o.role) + ' (appointed ' + escapeHtml(o.appointedOn) + ')</li>'
+  ).join('');
+
+  const pscs = (c.pscs || []).map(p =>
+    '<li>' + escapeHtml(p.name) + ': ' + (p.natureOfControl || []).map(escapeHtml).join(', ') + '</li>'
+  ).join('');
+
+  return '' +
+    '<div class="company">' +
+      '<h3>' + escapeHtml(c.name) + ' (' + escapeHtml(c.companyNumber) + ')</h3>' +
+      '<div class="meta">' +
+        escapeHtml(c.status) + ' · ' + escapeHtml(c.companyType) + ' · incorporated ' + escapeHtml(c.incorporatedOn) +
+      '</div>' +
+      '<div>' + escapeHtml(c.registeredOfficeAddress) + '</div>' +
+      (officers ? '<div class="section-title">Officers</div><ul>' + officers + '</ul>' : '') +
+      (pscs ? '<div class="section-title">Persons with significant control</div><ul>' + pscs + '</ul>' : '') +
+    '</div>';
+}
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+</script>
+
+</body>
+</html>
