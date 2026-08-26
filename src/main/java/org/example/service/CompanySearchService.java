@@ -15,8 +15,10 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 import org.example.repository.CompanyInfoRepository;
 import org.example.repository.QueryRepository;
+
 @Service
 public class CompanySearchService {
     private final CompanyInfoRepository companyInfoRepository;
@@ -38,7 +40,7 @@ public class CompanySearchService {
         if (minutesSinceLastUpdate >= 1) {
             System.out.println("too old, going to ordinary flow");
             return null;
-        }else{
+        } else {
             System.out.println("query found, preparing for retrieval");
             return q;
         }
