@@ -1,5 +1,6 @@
 package org.example.service;
 
+import lombok.AllArgsConstructor;
 import org.example.model.CompanyInfo;
 import org.example.model.Officer;
 import org.example.model.Psc;
@@ -19,15 +20,11 @@ import java.util.List;
 import org.example.repository.CompanyInfoRepository;
 import org.example.repository.QueryRepository;
 
+@AllArgsConstructor
 @Service
 public class CompanySearchService {
     private final CompanyInfoRepository companyInfoRepository;
     private final QueryRepository queryRepository;
-
-    public CompanySearchService(CompanyInfoRepository companyInfoRepository, QueryRepository queryRepository) {
-        this.companyInfoRepository = companyInfoRepository;
-        this.queryRepository = queryRepository;
-    }
 
     public Query checkDbForQueryOrUpdate(String query) {
         System.out.println("checking cache...");
